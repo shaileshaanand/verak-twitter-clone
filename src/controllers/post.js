@@ -1,6 +1,5 @@
 const Post = require("../models/Post");
 const { StatusCodes } = require("http-status-codes");
-const { NotFoundError } = require("../errors");
 
 const newPost = async (req, res, next) => {
   try {
@@ -53,11 +52,14 @@ const unlikePost = async (req, res, next) => {
 
 const deletePost = async (req, res, next) => {
   try {
-    const post = await Post.findByIdAndDelete({ _id: req.params.id });
+    const post = await Post.findOneAndDelete({
+      _id: req.params.id,
+      author: req.user._id,
+    });
     if (post) {
       res.status(StatusCodes.OK).json({ msg: "deleted" });
     } else {
-      throw new NotFoundError(`post ${req.params.id} not found`);
+      res.status(StatusCodes.NOT_FOUND).json({ msg: "not found" });
     }
   } catch (err) {
     next(err);

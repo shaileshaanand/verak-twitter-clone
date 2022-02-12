@@ -24,7 +24,20 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      select: false,
     },
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -49,8 +62,15 @@ UserSchema.methods.createJWT = function () {
 };
 
 UserSchema.methods.comparePassword = async function (canditatePassword) {
-  const isMatch = await bcrypt.compare(canditatePassword, this.password);
+  const isMatch = await bcrypt.compare(
+    canditatePassword,
+    (
+      await User.findOne({ username: this.username }).select("+password")
+    ).password
+  );
   return isMatch;
 };
 
-module.exports = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
+
+module.exports = User;

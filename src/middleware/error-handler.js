@@ -1,7 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const CustomAPIError = require("../errors/custom-api");
 const errorHandlerMiddleware = (err, req, res) => {
-  console.log("ERROR CALLED!!!");
   let customError = {
     // set default
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,

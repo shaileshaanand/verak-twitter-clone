@@ -2,11 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 
 const getMe = async (req, res, next) => {
   try {
-    const { username, first_name, last_name } = req.user;
-    console.log("USERRRRR", req.user);
-    res
-      .status(StatusCodes.OK)
-      .json({ user: { username, first_name, last_name } });
+    res.status(StatusCodes.OK).json({ user: req.user });
   } catch (err) {
     next(err);
   }
@@ -23,11 +19,7 @@ const updateMe = async (req, res, next) => {
     }
     req.user.save();
     res.status(StatusCodes.OK).json({
-      user: {
-        username: req.user.username,
-        first_name: req.user.first_name,
-        last_name: req.user.last_name,
-      },
+      user: req.user,
     });
   } catch (err) {
     next(err);
