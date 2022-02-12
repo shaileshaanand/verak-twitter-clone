@@ -1,0 +1,30 @@
+version: '3'
+services:
+  app:
+    user: "${UID}:${GID}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    command: "npm run dev"
+    env_file:
+      - .env
+    links:
+      - db
+
+  db:
+    image: mongo:5-focal
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=changeme123
+
+volumes:
+  node_modules:
+  mongo-data:
