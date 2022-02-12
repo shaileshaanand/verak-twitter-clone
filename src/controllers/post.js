@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const { StatusCodes } = require("http-status-codes");
+const { BadRequestError } = require("../errors");
 
 const newPost = async (req, res, next) => {
   try {
@@ -25,44 +26,32 @@ const getPosts = async (req, res, next) => {
   }
 };
 
-const likePost = async (req, res, next) => {
-  try {
-    const post = await Post.findOneAndUpdate(
-      { _id: req.params.id },
-      { $addToSet: { likes: req.user._id } },
-      { new: true }
-    );
-    res.status(StatusCodes.OK).json({ post });
-  } catch (error) {
-    next(error);
-  }
+const likePost = async (req, res) => {
+  const post = await Post.findOneAndUpdate(
+    { _id: req.params.id },
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  );
+  res.status(StatusCodes.OK).json({ post });
 };
-const unlikePost = async (req, res, next) => {
-  try {
-    const post = await Post.findOneAndUpdate(
-      { _id: req.params.id },
-      { $pull: { likes: req.user._id } },
-      { new: true }
-    );
-    res.status(StatusCodes.OK).json({ post });
-  } catch (error) {
-    next(error);
-  }
+const unlikePost = async (req, res) => {
+  const post = await Post.findOneAndUpdate(
+    { _id: req.params.id },
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  );
+  res.status(StatusCodes.OK).json({ post });
 };
 
-const deletePost = async (req, res, next) => {
-  try {
-    const post = await Post.findOneAndDelete({
-      _id: req.params.id,
-      author: req.user._id,
-    });
-    if (post) {
-      res.status(StatusCodes.OK).json({ msg: "deleted" });
-    } else {
-      res.status(StatusCodes.NOT_FOUND).json({ msg: "not found" });
-    }
-  } catch (err) {
-    next(err);
+const deletePost = async (req, res) => {
+  const post = await Post.findOneAndDelete({
+    _id: req.params.id,
+    author: req.user._id,
+  });
+  if (post) {
+    res.status(StatusCodes.OK).json({ msg: "deleted" });
+  } else {
+    throw new BadRequestError("Post not found");
   }
 };
 module.exports = { getPosts, newPost, likePost, deletePost, unlikePost };
