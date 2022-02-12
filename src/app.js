@@ -4,6 +4,7 @@ require("dotenv").config();
 const connectDB = require("./db/connect");
 const authRouter = require("./routes/auth");
 const meRouter = require("./routes/me");
+const postRouter = require("./routes/post");
 
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/v1/auth", authRouter);
 app.use(authMiddleware);
 app.use("/api/v1/me", meRouter);
+app.use("/api/v1/post", postRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
