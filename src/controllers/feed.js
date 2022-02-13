@@ -12,4 +12,5 @@ const feed = async (req, res) => {
     .skip((page - 1) * limit);
   res.status(200).json({ posts });
 };
+
 module.exports = { feed };

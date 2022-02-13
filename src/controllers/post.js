@@ -54,4 +54,5 @@ const deletePost = async (req, res) => {
     throw new BadRequestError("Post not found");
   }
 };
+
 module.exports = { getPosts, newPost, likePost, deletePost, unlikePost };

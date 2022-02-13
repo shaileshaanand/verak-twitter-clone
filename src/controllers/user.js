@@ -10,6 +10,7 @@ const getUser = async (req, res, next) => {
     next(err);
   }
 };
+
 const follow = async (req, res) => {
   const followee = await User.findOne({ _id: req.params.id });
   if (req.user.id === followee.id) {
