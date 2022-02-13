@@ -21,7 +21,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon src/index.js",
     "format": "prettier --write src/**/*.js src/*.js && eslint --fix src/**/*.js",
     "format:check": "prettier --check src/**/*.js src/*.js && eslint src/**/*.js src/*.js && echo \"Formatting and linting checked.\""
   },
