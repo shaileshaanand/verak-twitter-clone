@@ -11,7 +11,6 @@ const feedRouter = require("./routes/feed");
 
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
-const authMiddleware = require("./middleware/authentication");
 
 const swaggerDocument = require("./openapi-documentation.json");
 
@@ -23,7 +22,6 @@ app.use(express.json());
 
 app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use("/api/v1/auth", authRouter);
-app.use(authMiddleware);
 app.use("/api/v1/me", meRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/user", userRouter);

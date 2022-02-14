@@ -8,10 +8,12 @@ const {
   unlikePost,
 } = require("../controllers/post");
 
-router.get("", getPosts);
-router.post("", newPost);
-router.delete("/:id", deletePost);
-router.get("/:id/like", likePost);
-router.get("/:id/unlike", unlikePost);
+const authMiddleware = require("../middleware/authentication");
+
+router.get("", authMiddleware, getPosts);
+router.post("", authMiddleware, newPost);
+router.delete("/:id", authMiddleware, deletePost);
+router.get("/:id/like", authMiddleware, likePost);
+router.get("/:id/unlike", authMiddleware, unlikePost);
 
 module.exports = router;
