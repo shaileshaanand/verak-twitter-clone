@@ -1,16 +1,46 @@
+const { StatusCodes } = require("http-status-codes");
 const Post = require("../models/Post");
 
 const feed = async (req, res) => {
   const { following } = req.user;
   const sortByLikes = req.query.sortByLikes === "true" ? true : false;
-  console.log("SORRRTTTT", { sortByLikes });
-  const page = req.query.page || 1;
-  const limit = req.query.limit || 10;
-  const posts = await Post.find({ author: { $in: following } })
-    .sort(sortByLikes ? { likes: -1, createdAt: -1 } : { createdAt: -1 })
-    .limit(limit)
-    .skip((page - 1) * limit);
-  res.status(200).json({ posts });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  Post.aggregate(
+    [
+      {
+        $project: {
+          title: 1,
+          content: 1,
+          created: 1,
+          author: 1,
+          likes: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          _id: 1,
+          length: { $size: "$likes" },
+        },
+      },
+      {
+        $match: {
+          author: { $in: following },
+        },
+      },
+      {
+        $sort: sortByLikes ? { length: -1, createdAt: -1 } : { createdAt: -1 },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ],
+    (err, results) => {
+      if (err) {
+        res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: "Something went wrong" });
+      }
+      res.status(StatusCodes.OK).json({ results });
+    }
+  );
 };
 
 module.exports = { feed };
