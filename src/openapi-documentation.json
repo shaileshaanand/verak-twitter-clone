@@ -1,0 +1,813 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Twitter Clone API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserBase": {
+        "title": "User",
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "format": "string",
+            "description": "The unique identifier of the user",
+            "example": "5e9f8f8f8f8f8f8f8f8f8f8",
+            "readOnly": true
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "SuperSecurePassword@321",
+            "writeOnly": true
+          },
+          "following": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "User ID of the user being followed"
+            },
+            "readOnly": true
+          },
+          "followers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "User ID of the user following"
+            },
+            "readOnly": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-02-12T16:19:33.028Z",
+            "description": "Date and time the post was created",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-02-12T16:19:33.028Z",
+            "description": "Date and time the post was last updated",
+            "readOnly": true
+          }
+        }
+      },
+      "User": {
+        "title": "UserBase",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string",
+                "example": "johndoe"
+              }
+            }
+          }
+        ]
+      },
+      "Auth": {
+        "title": "Auth",
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjA3YjA4ZjQ2MTJjMjk1ZWZkZDM0M2YiLCJpYXQiOjE2NDQ4NjExODQsImV4cCI6MTY0NDk0NzU4NH0.d8yOSRr23dzV_vOQ249URG4Z_2R3yeJGmXVsQRasn2I"
+          }
+        }
+      },
+      "Post": {
+        "title": "Post",
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "5e9f8f8f8f8f8f8f8f8f8f8",
+            "readOnly": true
+          },
+          "title": {
+            "type": "string",
+            "example": "My Awesome Post"
+          },
+          "content": {
+            "type": "string",
+            "example": "This is my awesome post"
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "User ID of the user liking the post"
+            },
+            "readOnly": true
+          },
+          "author": {
+            "type": "string",
+            "description": "User ID of the user who created the post",
+            "readOnly": true,
+            "example": "5e9f8f8f8f8f8f8f8f8f8f8"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-02-12T16:19:33.028Z",
+            "description": "Date and time the post was created",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-02-12T16:19:33.028Z",
+            "description": "Date and time the post was last updated",
+            "readOnly": true
+          }
+        }
+      },
+      "Error": {
+        "title": "Error",
+        "type": "object",
+        "properties": {
+          "msg": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Invalid or missing authorization token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "You are not authorized to perform this action",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The resource you are looking for was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "The request was invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Something went wrong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new user",
+        "description": "Register a new user",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "description": "User object"
+        },
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Auth"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login a user",
+        "description": "Login a user",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "SuperSecurePassword@321"
+                  }
+                }
+              }
+            }
+          },
+          "description": "User object"
+        },
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Auth"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Get the logged in user",
+        "description": "Get the logged in user",
+        "operationId": "me",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Update the logged in user",
+        "description": "Update the logged in user",
+        "operationId": "updateMe",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            }
+          },
+          "description": "User object"
+        },
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get a user by ID",
+        "description": "Get a user by ID",
+        "operationId": "getUserById",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}/follow": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Follow a user",
+        "description": "Follow a user",
+        "operationId": "followUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid user object",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}/unfollow": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Unfollow a user",
+        "description": "Unfollow a user",
+        "operationId": "unfollowUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post": {
+      "post": {
+        "tags": [
+          "Post"
+        ],
+        "summary": "Create a post",
+        "description": "Create a post",
+        "operationId": "createPost",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Post"
+              }
+            }
+          },
+          "description": "Post object"
+        },
+        "responses": {
+          "200": {
+            "description": "Post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Post"
+        ],
+        "summary": "Get all posts",
+        "description": "Get all posts",
+        "operationId": "getPosts",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/{id}": {
+      "delete": {
+        "tags": [
+          "Post"
+        ],
+        "summary": "Delete a post",
+        "description": "Delete a post",
+        "operationId": "deletePost",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Post ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/{id}/like": {
+      "get": {
+        "tags": [
+          "Post"
+        ],
+        "summary": "Like a post",
+        "description": "Like a post",
+        "operationId": "likePost",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Post ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid post object",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/{id}/unlike": {
+      "get": {
+        "tags": [
+          "Post"
+        ],
+        "summary": "Unlike a post",
+        "description": "Unlike a post",
+        "operationId": "unlikePost",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Post ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid post object",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feed": {
+      "get": {
+        "tags": [
+          "Feed"
+        ],
+        "summary": "Get feed",
+        "description": "Get feed",
+        "operationId": "getFeed",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sortByLikes",
+            "in": "query",
+            "description": "Sort by likes",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Post"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
