@@ -9,7 +9,7 @@ const newPost = async (req, res, next) => {
       content: req.body.content,
       author: req.user._id,
     });
-    res.status(StatusCodes.CREATED).json({ post });
+    res.status(StatusCodes.CREATED).json(post);
   } catch (err) {
     next(err);
   }
@@ -32,7 +32,7 @@ const likePost = async (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   );
-  res.status(StatusCodes.OK).json({ post });
+  res.status(StatusCodes.OK).json(post);
 };
 const unlikePost = async (req, res) => {
   const post = await Post.findOneAndUpdate(
@@ -40,7 +40,7 @@ const unlikePost = async (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   );
-  res.status(StatusCodes.OK).json({ post });
+  res.status(StatusCodes.OK).json(post);
 };
 
 const deletePost = async (req, res) => {
