@@ -2,6 +2,10 @@
 
 A Twitter clone API written in `express` with mongoDB database.
 
+## Documentation
+
+Documentation can be found at `/api/v1/docs` on the server or at [ https://verak-twitter-clone-docs.netlify.app/ ](https://verak-twitter-clone-docs.netlify.app/)
+
 ## Libraries Used
 
 | Library              | Purpose                                                                    |
