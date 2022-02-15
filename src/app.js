@@ -16,9 +16,10 @@ const swaggerDocument = require("./openapi-documentation.json");
 
 const app = express();
 
-// const cors = require("cors");
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use("/api/v1/auth", authRouter);
