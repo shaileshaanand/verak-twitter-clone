@@ -3,12 +3,12 @@ const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 
 const register = async (req, res) => {
-  const { username } = req.body;
+  const { username, first_name, last_name, password } = req.body;
   const exists = await User.findOne({ username });
   if (exists) {
     throw new BadRequestError(`Username ${req.body.username} is already taken`);
   }
-  const user = await User.create({ ...req.body });
+  const user = await User.create({ username, first_name, last_name, password });
   const token = user.createJWT();
   res
     .status(StatusCodes.CREATED)
