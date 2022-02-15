@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema(
       minlength: 5,
       maxlength: 255,
       unique: true,
+      immutable: true,
     },
     password: {
       type: String,
@@ -46,7 +47,9 @@ const UserSchema = new mongoose.Schema(
 
 UserSchema.pre("save", async function () {
   const salt = await bcrypt.genSalt(10);
+  // console.log("PRE", { salt, pass: this.password });
   this.password = await bcrypt.hash(this.password, salt);
+  console.log("PRE", { salt, pass: this.password, this: this });
 });
 
 UserSchema.methods.createJWT = function () {
@@ -67,6 +70,12 @@ UserSchema.methods.comparePassword = async function (canditatePassword) {
     (
       await User.findOne({ username: this.username }).select("+password")
     ).password
+  );
+  console.log(
+    canditatePassword,
+    (await User.findOne({ username: this.username }).select("+password"))
+      .password,
+    isMatch
   );
   return isMatch;
 };
