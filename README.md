@@ -8,16 +8,17 @@ Documentation can be found at `/api/v1/docs` on the server or at [ https://verak
 
 ## Libraries Used
 
-| Library              | Purpose                                                                    |
-| -------------------- | -------------------------------------------------------------------------- |
-| bcryptjs             | To encrypt passwords                                                       |
-| dotenv               | To store all Environment vars in `.env` file                               |
-| express              | To serve the API (duh.)                                                    |
-| express-async-errors | To be able to handle async function errors in the error handler middleware |
-| http-status-codes    | Gives pretty names to status codes (Eg. 200 -> OK)                         |
-| jsonwebtoken         | To issue JWTs                                                              |
-| mongoose             | as ORM                                                                     |
-| swagger-ui-express   | To server the Swagger UI Documentation at /docs                            |
+| Library              | Purpose                                                                                                                |
+| -------------------- | -----------------------------------------------------------------------------------------------------------------------|
+| bcryptjs             | To encrypt passwords                                                                                                   |
+| cors                 | To set `access-control-allow-origin` Header (see [ CORS MDN ](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)) |
+| dotenv               | To store all Environment vars in `.env` file                                                                           |
+| express              | To serve the API (duh.)                                                                                                |
+| express-async-errors | To be able to handle async function errors in the error handler middleware                                             |
+| http-status-codes    | Gives pretty names to status codes (Eg. 200 -> OK)                                                                     |
+| jsonwebtoken         | To issue JWTs                                                                                                          |
+| mongoose             | as ORM                                                                                                                 |
+| swagger-ui-express   | To server the Swagger UI Documentation at /docs                                                                        |
 
 ## Running
 
